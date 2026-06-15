@@ -348,6 +348,7 @@ const guiControls_default = {
   wind : 0.0,
   globalEffectsStartAlt : 0,
   globalEffectsEndAlt : 10000,
+  tropopauseStabilization : true,
   globalDrying : 0.000000, // 0.000010
   globalHeating : 0.0,
   soundingForcing : 0.0,
@@ -394,7 +395,7 @@ const guiControls_default = {
   brushIntensity : 0.01,
   allowCaves : true,
   showGraph : false,
-  realDewPoint : false, // show real dew point in graph, instead of dew point with cloud water included
+  realDewPoint : true, // show real dew point in graph, instead of dew point with cloud water included
   enablePrecipitation : true,
   showDrops : false,
   radarPixelSize : 7.0,
@@ -1364,6 +1365,7 @@ async function loadData()
     sim_res_x = parseInt(document.getElementById('simResSelX').value);
     sim_res_y = parseInt(document.getElementById('simResSelY').value);
     sim_height = parseInt(document.getElementById('simHeightSel').value);
+    guiControls_default.tropopauseStabilization = document.getElementById('tropopauseStabilizationCheck').checked;
 
     NUM_DROPLETS = (sim_res_x * sim_res_y) / NUM_DROPLETS_DEVIDER;
     SETUP_MODE = true;
@@ -3440,6 +3442,7 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
     gl.uniform1f(gl.getUniformLocation(advectionProgram, 'globalDrying'), guiControls.globalDrying);
     gl.uniform1f(gl.getUniformLocation(advectionProgram, 'globalHeating'), guiControls.globalHeating);
     gl.uniform1f(gl.getUniformLocation(advectionProgram, 'soundingForcing'), guiControls.soundingForcing);
+    gl.uniform1i(gl.getUniformLocation(advectionProgram, 'tropopauseStabilization'), guiControls.tropopauseStabilization ? 1 : 0);
     gl.uniform1f(gl.getUniformLocation(advectionProgram, 'globalEffectsStartAlt'), guiControls.globalEffectsStartAlt / guiControls.simHeight);
     gl.uniform1f(gl.getUniformLocation(advectionProgram, 'globalEffectsEndAlt'), guiControls.globalEffectsEndAlt / guiControls.simHeight);
     gl.uniform1f(gl.getUniformLocation(advectionProgram, 'waterTemperature'), CtoK(guiControls.waterTemperature));
@@ -3538,6 +3541,13 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
         gl.uniform1f(gl.getUniformLocation(advectionProgram, 'soundingForcing'), guiControls.soundingForcing);
       })
       .name('Sounding Forcing');
+
+    fluidParams_folder.add(guiControls, 'tropopauseStabilization')
+      .onChange(function() {
+        gl.useProgram(advectionProgram);
+        gl.uniform1i(gl.getUniformLocation(advectionProgram, 'tropopauseStabilization'), guiControls.tropopauseStabilization ? 1 : 0);
+      })
+      .name('Tropopause Stabilization');
 
     fluidParams_folder.add(guiControls, 'globalEffectsEndAlt', 0, guiControls.simHeight, 10)
       .onChange(function() {
@@ -5543,7 +5553,7 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
 
   for (var y = 0; y < sim_res_y + 1; y++) {
     let altitude = y / (sim_res_y + 1) * guiControls.simHeight;
-    var realTemp = Math.max(map_range(altitude, 0, 12000, 25.0, -70.0), -70);
+    var realTemp = Math.max(map_range(altitude, 0, 12000, 15.0, -70.0), -70);
 
     initial_T[y] = realToPotentialT(CtoK(realTemp), y); // initial temperature profile
   }

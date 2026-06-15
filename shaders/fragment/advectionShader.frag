@@ -29,6 +29,7 @@ uniform int userInputType;   // 0 = nothing 	1 = temp ...
 uniform vec4 airplaneValues; // xpos   Ypos   throttle   fire
 
 uniform bool wrapHorizontally;
+uniform bool tropopauseStabilization;
 
 uniform float dryLapse;
 uniform float evapHeat;
@@ -172,7 +173,7 @@ void main()
 
       base[TEMPERATURE] += globalHeating;
 
-      if (texCoord.y > 0.80) {
+      if (texCoord.y > 0.80 && tropopauseStabilization) {
       base[TEMPERATURE] -= (KtoC(realTemp) - -70.0) * 0.0005; // tropopause temperature stabilization
       water[TOTAL] -= (water[TOTAL] - 0.0125) * 0.0001;       // keep stratosphere dew point around -80C
       }
