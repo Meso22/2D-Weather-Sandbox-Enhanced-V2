@@ -357,7 +357,7 @@ const guiControls_default = {
   dynamicWaterTemperature : false,
   landEvaporation : 0.00005,
   waterEvaporation : 0.0001,
-  evapHeat : 2.90,          //  Real: 2260 J/g
+  evapHeat : 2.10,          //  Real: 2260 J/g
   meltingHeat : 0.43,       //  Real:  334 J/g
   condensationRate : 0.0050,
   waterWeight : 0.25,       // 0.50
@@ -377,7 +377,7 @@ const guiControls_default = {
   SmoothCam : true,
   camSpeed : 0.01,
   exposure : 1.0,
-  saturation : 1.0,
+  saturation : 2.0,
   contrast : 1.1,
   skyBrightness : 1.0,
   timeOfDay : 9.9,
@@ -5553,7 +5553,7 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
 
   for (var y = 0; y < sim_res_y + 1; y++) {
     let altitude = y / (sim_res_y + 1) * guiControls.simHeight;
-    var realTemp = Math.max(map_range(altitude, 0, 12000, 15.0, -70.0), -70);
+    var realTemp = Math.max(map_range(altitude, 0, 12000, 25.0, -70.0), -70);
 
     initial_T[y] = realToPotentialT(CtoK(realTemp), y); // initial temperature profile
   }
